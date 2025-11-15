@@ -39,6 +39,9 @@ public class Post {
     @Column
     private String image; // Imagen opcional (ruta de la imagen)
 
+    @Column(nullable = false)
+    private String type; // Tipo de publicación (ej. "receta", "consejo", etc.)
+
     @ManyToOne
     @JoinColumn(
             name = "id_usuario",
