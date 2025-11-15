@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Data
@@ -31,5 +32,5 @@ public class PostResponseDTO {
     private LocalDateTime updatedAt;
 
     @JsonProperty("userId")
-    private Long userId;
+    private UUID userId;
 }

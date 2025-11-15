@@ -1,0 +1,52 @@
+package org.example.lifesyncbackend.Controller;
+
+import lombok.RequiredArgsConstructor;
+import org.example.lifesyncbackend.Domain.DTO.create.CreatePostDTO;
+import org.example.lifesyncbackend.Domain.DTO.response.PostResponseDTO;
+import org.example.lifesyncbackend.Service.iPostService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/posts")
+@RequiredArgsConstructor
+public class PostController {
+
+    private final iPostService postService;
+
+    // Endpoint para crear una publicación
+    @PostMapping
+    public ResponseEntity<PostResponseDTO> createPost(@RequestBody CreatePostDTO postDTO) throws Exception {
+        PostResponseDTO createdPost = postService.createPost(postDTO);
+        return ResponseEntity.status(201).body(createdPost); // Se retorna con código 201 (creado)
+    }
+
+    // Endpoint para obtener todas las publicaciones
+    @GetMapping
+    public List<PostResponseDTO> getAllPosts() {
+        return postService.getAllPosts();
+    }
+
+    // Endpoint para obtener una publicación por su ID
+    @GetMapping("/{idPost}")
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long idPost) throws Exception {
+        PostResponseDTO post = postService.getPostById(idPost);
+        return ResponseEntity.ok(post); // Se retorna con código 200 (OK)
+    }
+
+    // Endpoint para actualizar una publicación por su ID
+    @PutMapping("/{idPost}")
+    public ResponseEntity<PostResponseDTO> updatePost(@PathVariable Long idPost, @RequestBody CreatePostDTO postDTO) throws Exception {
+        PostResponseDTO updatedPost = postService.updatePost(idPost, postDTO);
+        return ResponseEntity.ok(updatedPost); // Se retorna con código 200 (OK)
+    }
+
+    // Endpoint para eliminar una publicación por su ID
+    @DeleteMapping("/{idPost}")
+    public ResponseEntity<PostResponseDTO> deletePost(@PathVariable Long idPost) throws Exception {
+        PostResponseDTO deletedPost = postService.deletePost(idPost);
+        return ResponseEntity.ok(deletedPost); // Se retorna con código 200 (OK)
+    }
+}

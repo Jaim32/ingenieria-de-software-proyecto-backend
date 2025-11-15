@@ -2,7 +2,7 @@ package org.example.lifesyncbackend.Service.ServiceImplementation;
 
 import lombok.RequiredArgsConstructor;
 import org.example.lifesyncbackend.Domain.DTO.create.CreatePostDTO;
-import org.example.lifesyncbackend.Domain.DTO.PostDTO;
+import org.example.lifesyncbackend.Domain.DTO.response.PostResponseDTO;
 import org.example.lifesyncbackend.Domain.Entity.Post;
 import org.example.lifesyncbackend.Domain.Entity.Usuario;
 import org.example.lifesyncbackend.Repository.iPostRepository;
@@ -21,7 +21,7 @@ public class PostServiceImpl implements iPostService {
     private final iUsuarioRepository usuarioRepository;
 
     @Override
-    public PostDTO createPost(CreatePostDTO dto) throws Exception {
+    public PostResponseDTO createPost(CreatePostDTO dto) throws Exception {
         Post post = new Post();
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());
@@ -40,26 +40,26 @@ public class PostServiceImpl implements iPostService {
         }
 
         postRepository.save(post);
-        return mapToPostDTO(post);
+        return mapToPostResponseDTO(post);
     }
 
     @Override
-    public List<PostDTO> getAllPosts() {
+    public List<PostResponseDTO> getAllPosts() {
         return postRepository.findAll()
                 .stream()
-                .map(this::mapToPostDTO)
+                .map(this::mapToPostResponseDTO)
                 .toList();
     }
 
     @Override
-    public PostDTO getPostById(Long idPost) throws Exception {
+    public PostResponseDTO getPostById(Long idPost) throws Exception {
         Post post = postRepository.findById(idPost)
                 .orElseThrow(() -> new Exception("Post no encontrado"));
-        return mapToPostDTO(post);
+        return mapToPostResponseDTO(post);
     }
 
     @Override
-    public PostDTO updatePost(Long idPost, CreatePostDTO dto) throws Exception {
+    public PostResponseDTO updatePost(Long idPost, CreatePostDTO dto) throws Exception {
         Post post = postRepository.findById(idPost)
                 .orElseThrow(() -> new Exception("Post no encontrado"));
 
@@ -68,19 +68,19 @@ public class PostServiceImpl implements iPostService {
         post.setUpdatedAt(LocalDateTime.now());
 
         postRepository.save(post);
-        return mapToPostDTO(post);
+        return mapToPostResponseDTO(post);
     }
 
     @Override
-    public PostDTO deletePost(Long idPost) throws Exception {
+    public PostResponseDTO deletePost(Long idPost) throws Exception {
         Post post = postRepository.findById(idPost)
                 .orElseThrow(() -> new Exception("Post no encontrado"));
         postRepository.delete(post);
-        return mapToPostDTO(post);
+        return mapToPostResponseDTO(post);
     }
 
-    private PostDTO mapToPostDTO(Post post) {
-        PostDTO dto = new PostDTO();
+    private PostResponseDTO mapToPostResponseDTO(Post post) {
+        PostResponseDTO dto = new PostResponseDTO();
         dto.setIdPost(post.getIdPost());
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
