@@ -24,40 +24,44 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CORS
+                // Configuración de CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Stateless CSRF disabled for JWT APIs
+                // Deshabilitar CSRF (apropiado para APIs basadas en JWT)
                 .csrf(csrf -> csrf.disable())
-                // Stateless session management
+                // Configuración de sesión sin estado (stateless)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Authorization rules
+                // Reglas de autorización
                 .authorizeHttpRequests(auth -> auth
+                        // Rutas públicas (sin autenticación)
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/usuarios/create").permitAll()
                         .requestMatchers("/api/recetas/publicas").permitAll()
+                        // Rutas protegidas (requieren autenticación)
+                        .requestMatchers("/api/posts").authenticated()  // Endpoint de posts requiere autenticación
                         .requestMatchers("/api/platillos/**").authenticated()
                         .requestMatchers("/api/rachas/**").authenticated()
                         .requestMatchers("/api/hidratacion/me/**").authenticated()
+                        // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated()
                 )
-                // JWT filter before the default authentication filter
+                // Añadir el filtro JWT antes del filtro de autenticación por defecto
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // Configuración de CORS (para permitir solicitudes desde el frontend)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Frontend origin (ajusta si cambias de puerto)
-        config.setAllowedOrigins(List.of("http://localhost:4028"));
-        config.setAllowedMethods(List.of("GET", "POST", "PATCH","PUT", "DELETE", "OPTIONS"));
+        // Configurar origen de frontend
+        config.setAllowedOrigins(List.of("http://localhost:4028")); // Ajusta el origen según tu frontend
+        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica CORS a todas las rutas
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", config); // Aplica CORS a todas las rutas
         return source;
     }
 }

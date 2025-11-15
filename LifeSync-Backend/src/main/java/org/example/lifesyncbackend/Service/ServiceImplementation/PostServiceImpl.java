@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,14 +53,14 @@ public class PostServiceImpl implements iPostService {
     }
 
     @Override
-    public PostResponseDTO getPostById(Long idPost) throws Exception {
+    public PostResponseDTO getPostById(UUID idPost) throws Exception {
         Post post = postRepository.findById(idPost)
                 .orElseThrow(() -> new Exception("Post no encontrado"));
         return mapToPostResponseDTO(post);
     }
 
     @Override
-    public PostResponseDTO updatePost(Long idPost, CreatePostDTO dto) throws Exception {
+    public PostResponseDTO updatePost(UUID idPost, CreatePostDTO dto) throws Exception {
         Post post = postRepository.findById(idPost)
                 .orElseThrow(() -> new Exception("Post no encontrado"));
 
@@ -72,12 +73,22 @@ public class PostServiceImpl implements iPostService {
     }
 
     @Override
-    public PostResponseDTO deletePost(Long idPost) throws Exception {
+    public PostResponseDTO deletePost(UUID idPost) throws Exception {
         Post post = postRepository.findById(idPost)
                 .orElseThrow(() -> new Exception("Post no encontrado"));
         postRepository.delete(post);
         return mapToPostResponseDTO(post);
     }
+
+    @Override
+    public List<PostResponseDTO> getPostsByUserId(UUID userId) {
+        List<Post> posts = postRepository.findAllByUser_IdUsuario(userId);  // Usamos un método en el repositorio para encontrar los posts por usuario
+
+        return posts.stream()
+                .map(this::mapToPostResponseDTO)
+                .toList();
+    }
+
 
     private PostResponseDTO mapToPostResponseDTO(Post post) {
         PostResponseDTO dto = new PostResponseDTO();

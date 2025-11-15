@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -20,7 +21,7 @@ public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idPost;
+    private UUID idPost;
 
     @Column(nullable = false, length = 80)
     private String title; // Título de la publicación
@@ -46,5 +47,4 @@ public class Post {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Usuario user; // Relación con la entidad Usuario
 
-    // En caso de ser necesario, otros campos como 'tipoDePost' pueden ser añadidos
 }
