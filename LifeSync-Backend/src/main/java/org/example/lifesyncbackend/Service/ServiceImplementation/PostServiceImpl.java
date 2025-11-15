@@ -28,6 +28,7 @@ public class PostServiceImpl implements iPostService {
         post.setContent(dto.getContent());
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
+        post.setType(dto.getType());
 
         // Relacionar con el usuario
         Usuario user = usuarioRepository.findById(dto.getUserId())
@@ -67,6 +68,7 @@ public class PostServiceImpl implements iPostService {
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());
         post.setUpdatedAt(LocalDateTime.now());
+        post.setType(dto.getType());
 
         postRepository.save(post);
         return mapToPostResponseDTO(post);
@@ -99,6 +101,7 @@ public class PostServiceImpl implements iPostService {
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
         dto.setUserId(post.getUser().getIdUsuario());
+        dto.setType(post.getType());
         return dto;
     }
 }

@@ -21,7 +21,13 @@ public class CreatePostDTO {
     @NotNull
     private String content;
 
-    private MultipartFile image; // Imagen opcional
+    private MultipartFile image; // Imagen
+
+
+    @NotBlank
+    @NotEmpty
+    @NotNull
+    private String type; // Tipo de publicación
 
     @NotNull
     private UUID userId;

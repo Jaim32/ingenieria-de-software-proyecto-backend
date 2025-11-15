@@ -31,6 +31,9 @@ public class PostResponseDTO {
     @JsonProperty("updatedAt")
     private LocalDateTime updatedAt;
 
+    @JsonProperty("type")
+    private String type;
+
     @JsonProperty("userId")
     private UUID userId;
 }

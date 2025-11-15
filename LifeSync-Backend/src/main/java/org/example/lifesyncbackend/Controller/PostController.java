@@ -20,6 +20,7 @@ public class PostController {
     // Endpoint para crear una publicación
     @PostMapping
     public ResponseEntity<PostResponseDTO> createPost(@RequestBody CreatePostDTO postDTO) throws Exception {
+        // Al crear un post, ahora también se maneja el campo "type" que es el tipo de post
         PostResponseDTO createdPost = postService.createPost(postDTO);
         return ResponseEntity.status(201).body(createdPost); // Se retorna con código 201 (creado)
     }
@@ -40,6 +41,7 @@ public class PostController {
     // Endpoint para actualizar una publicación por su ID
     @PutMapping("/{idPost}")
     public ResponseEntity<PostResponseDTO> updatePost(@PathVariable UUID idPost, @RequestBody CreatePostDTO postDTO) throws Exception {
+        // Al actualizar un post, también se actualiza el campo "type" del post
         PostResponseDTO updatedPost = postService.updatePost(idPost, postDTO);
         return ResponseEntity.ok(updatedPost); // Se retorna con código 200 (OK)
     }
@@ -51,6 +53,7 @@ public class PostController {
         return ResponseEntity.ok(deletedPost); // Se retorna con código 200 (OK)
     }
 
+    // Endpoint para obtener publicaciones de un usuario específico
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PostResponseDTO>> getPostsByUser(@PathVariable UUID userId) {
         List<PostResponseDTO> posts = postService.getPostsByUserId(userId);
