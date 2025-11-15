@@ -91,6 +91,15 @@ public class PostServiceImpl implements iPostService {
                 .toList();
     }
 
+    @Override
+    public List<PostResponseDTO> getPostsByType(String type) {
+        List<Post> posts = postRepository.findAllByType(type);
+        return posts.stream()
+                .map(this::mapToPostResponseDTO)
+                .toList();
+    }
+
+
 
     private PostResponseDTO mapToPostResponseDTO(Post post) {
         PostResponseDTO dto = new PostResponseDTO();

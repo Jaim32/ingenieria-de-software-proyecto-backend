@@ -13,4 +13,6 @@ public interface iPostService {
     PostResponseDTO updatePost(UUID idPost, CreatePostDTO postDTO) throws Exception;
     PostResponseDTO deletePost(UUID idPost) throws Exception;
     List<PostResponseDTO> getPostsByUserId(UUID userId);
+    List<PostResponseDTO> getPostsByType(String type);
+
 }

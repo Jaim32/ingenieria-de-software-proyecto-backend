@@ -59,4 +59,10 @@ public class PostController {
         List<PostResponseDTO> posts = postService.getPostsByUserId(userId);
         return ResponseEntity.ok(posts);  // Devuelve las publicaciones del usuario
     }
+
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<PostResponseDTO>> getPostsByType(@PathVariable String type) {
+        List<PostResponseDTO> posts = postService.getPostsByType(type);
+        return ResponseEntity.ok(posts);  // Devuelve las publicaciones del tipo especificado
+    }
 }
