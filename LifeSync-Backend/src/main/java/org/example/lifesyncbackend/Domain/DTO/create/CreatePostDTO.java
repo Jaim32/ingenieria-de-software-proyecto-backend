@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Data
 public class CreatePostDTO {
 
@@ -22,5 +24,5 @@ public class CreatePostDTO {
     private MultipartFile image; // Imagen opcional
 
     @NotNull
-    private Long userId;
+    private UUID userId;
 }
