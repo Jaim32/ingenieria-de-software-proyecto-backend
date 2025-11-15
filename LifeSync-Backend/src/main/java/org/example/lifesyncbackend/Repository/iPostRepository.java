@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface iPostRepository extends JpaRepository<Post, UUID> {
     List<Post> findAllByUser_IdUsuario(UUID userId);  // Cambiar de 'User_Id' a 'User_IdUsuario'
+    List<Post> findAllByType(String type);
+
 }
