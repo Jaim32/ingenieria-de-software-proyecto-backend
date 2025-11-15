@@ -14,7 +14,7 @@ import java.util.UUID;
 public class PostResponseDTO {
 
     @JsonProperty("idPost")
-    private Long idPost;
+    private UUID idPost;
 
     @JsonProperty("title")
     private String title;

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -31,22 +32,28 @@ public class PostController {
 
     // Endpoint para obtener una publicación por su ID
     @GetMapping("/{idPost}")
-    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long idPost) throws Exception {
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable UUID idPost) throws Exception {
         PostResponseDTO post = postService.getPostById(idPost);
         return ResponseEntity.ok(post); // Se retorna con código 200 (OK)
     }
 
     // Endpoint para actualizar una publicación por su ID
     @PutMapping("/{idPost}")
-    public ResponseEntity<PostResponseDTO> updatePost(@PathVariable Long idPost, @RequestBody CreatePostDTO postDTO) throws Exception {
+    public ResponseEntity<PostResponseDTO> updatePost(@PathVariable UUID idPost, @RequestBody CreatePostDTO postDTO) throws Exception {
         PostResponseDTO updatedPost = postService.updatePost(idPost, postDTO);
         return ResponseEntity.ok(updatedPost); // Se retorna con código 200 (OK)
     }
 
     // Endpoint para eliminar una publicación por su ID
     @DeleteMapping("/{idPost}")
-    public ResponseEntity<PostResponseDTO> deletePost(@PathVariable Long idPost) throws Exception {
+    public ResponseEntity<PostResponseDTO> deletePost(@PathVariable UUID idPost) throws Exception {
         PostResponseDTO deletedPost = postService.deletePost(idPost);
         return ResponseEntity.ok(deletedPost); // Se retorna con código 200 (OK)
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PostResponseDTO>> getPostsByUser(@PathVariable UUID userId) {
+        List<PostResponseDTO> posts = postService.getPostsByUserId(userId);
+        return ResponseEntity.ok(posts);  // Devuelve las publicaciones del usuario
     }
 }
