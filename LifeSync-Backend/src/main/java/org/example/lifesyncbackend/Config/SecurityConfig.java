@@ -32,17 +32,20 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Reglas de autorización
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas (sin autenticación)
+                        // Rutas públicas
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/usuarios/create").permitAll()
                         .requestMatchers("/api/recetas/publicas").permitAll()
-                        // Rutas protegidas (requieren autenticación)
-                        .requestMatchers("/api/posts").authenticated()  // Endpoint de posts requiere autenticación
+
+                        // Rutas protegidas
+                        .requestMatchers("/api/posts/**").authenticated()
+                        .requestMatchers("/api/comment/**").authenticated()
                         .requestMatchers("/api/platillos/**").authenticated()
                         .requestMatchers("/api/rachas/**").authenticated()
                         .requestMatchers("/api/hidratacion/me/**").authenticated()
-                        // Cualquier otra ruta requiere autenticación
+
                         .anyRequest().authenticated()
+
                 )
                 // Añadir el filtro JWT antes del filtro de autenticación por defecto
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

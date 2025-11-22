@@ -124,6 +124,8 @@ public class ComentarioServiceImpl implements iComentarioService {
         dto.setCreatedAt(comentario.getCreatedAt());
         dto.setPostId(comentario.getPost().getIdPost());
         // dto.setAutor(autorDTO); // <-- Descomentar cuando tengas el mapping del autor
+        dto.setIdUser(comentario.getUser().getIdUsuario()); // <-- FALTABA
+
 
         return dto;
     }

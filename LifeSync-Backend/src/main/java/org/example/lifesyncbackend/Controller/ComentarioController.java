@@ -16,69 +16,72 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/comment") // Prefijo base para tu API
+@RequestMapping("/api") // Prefijo general de APIs
 @RequiredArgsConstructor
 public class ComentarioController {
 
     private final iComentarioService comentarioService;
 
-
+    // ===========================
+    //   CREAR COMENTARIO
+    // ===========================
     @PostMapping("/posts/{postId}/comentarios")
     public ResponseEntity<ComentarioResponseDTO> crearComentario(
             @PathVariable UUID postId,
             @Valid @RequestBody ComentarioCreateDTO comentarioDTO
     ) {
-        UUID userId = getAuthenticatedUserId(); // Obtenemos el ID del usuario logueado
-        ComentarioResponseDTO nuevoComentario = comentarioService.createComentario(postId, comentarioDTO, userId);
+        UUID userId = getAuthenticatedUserId();
+        ComentarioResponseDTO nuevoComentario =
+                comentarioService.createComentario(postId, comentarioDTO, userId);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoComentario);
     }
 
+    // ===========================
+    //   LISTAR COMENTARIOS DE UN POST
+    // ===========================
     @GetMapping("/posts/{postId}/comentarios")
-    public ResponseEntity<List<ComentarioResponseDTO>> listarComentarios(@PathVariable UUID postId) {
+    public ResponseEntity<List<ComentarioResponseDTO>> listarComentarios(
+            @PathVariable UUID postId
+    ) {
         List<ComentarioResponseDTO> comentarios = comentarioService.getComentariosByPost(postId);
         return ResponseEntity.ok(comentarios);
     }
 
-    /**
-     * ACTUALIZAR UN COMENTARIO
-     * PUT /api/v1/comentarios/{comentarioId}
-     */
+    // ===========================
+    //   ACTUALIZAR COMENTARIO
+    // ===========================
     @PutMapping("/comentarios/{comentarioId}")
     public ResponseEntity<ComentarioResponseDTO> actualizarComentario(
             @PathVariable UUID comentarioId,
             @Valid @RequestBody ComentarioUpdateDTO comentarioDTO
     ) {
         UUID userId = getAuthenticatedUserId();
-        ComentarioResponseDTO actualizado = comentarioService.updateComentario(comentarioId, comentarioDTO, userId);
+        ComentarioResponseDTO actualizado =
+                comentarioService.updateComentario(comentarioId, comentarioDTO, userId);
+
         return ResponseEntity.ok(actualizado);
     }
 
-    /**
-     * ELIMINAR UN COMENTARIO
-     * DELETE /api/v1/comentarios/{comentarioId}
-     */
+    // ===========================
+    //   ELIMINAR COMENTARIO
+    // ===========================
     @DeleteMapping("/comentarios/{comentarioId}")
-    public ResponseEntity<Void> eliminarComentario(@PathVariable UUID comentarioId) {
+    public ResponseEntity<Void> eliminarComentario(
+            @PathVariable UUID comentarioId
+    ) {
         UUID userId = getAuthenticatedUserId();
         comentarioService.deleteComentario(comentarioId, userId);
         return ResponseEntity.noContent().build();
     }
 
-    // --- MÉTODO PRIVADO PARA OBTENER EL ID DEL USUARIO ---
+    // ===========================
+    //   OBTENER ID DEL USUARIO LOGUEADO
+    // ===========================
     private UUID getAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // IMPORTANTE: Dependiendo de cómo configuraste tu 'UserDetails' o tu Token JWT,
-        // el ID puede estar en diferentes lugares.
-
-        // OPCIÓN A: Si tu principal es un objeto personalizado (ej. CustomUserDetails)
-        // CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        // return userDetails.getId();
-
-        // OPCIÓN B: Si el 'name' de la autenticación es el ID (UUID en String)
-        return UUID.fromString(authentication.getName());
-
-        // Si ninguna de estas te funciona, dime cómo es tu clase 'Usuario' o 'SecurityConfig'
-        // para darte la línea exacta aquí.
+        // El JWT debe tener el UUID en el `sub`
+        return UUID.fromString(auth.getName());
     }
 }
