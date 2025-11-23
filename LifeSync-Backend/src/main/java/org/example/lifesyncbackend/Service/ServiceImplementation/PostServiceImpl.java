@@ -36,10 +36,7 @@ public class PostServiceImpl implements iPostService {
 
         post.setUser(user);
 
-        // Subida de imagen opcional
-        if (dto.getImage() != null) {
-            post.setImage("/ruta/a/la/imagen.jpg"); // Simulación de imagen subida
-        }
+        post.setImage(dto.getImage());
 
         postRepository.save(post);
         return mapToPostResponseDTO(post);
@@ -111,6 +108,8 @@ public class PostServiceImpl implements iPostService {
         dto.setUpdatedAt(post.getUpdatedAt());
         dto.setUserId(post.getUser().getIdUsuario());
         dto.setType(post.getType());
+        dto.setNombreUsuario(post.getUser().getNombre());
+
         return dto;
     }
 }

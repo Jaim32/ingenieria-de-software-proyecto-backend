@@ -36,4 +36,7 @@ public class PostResponseDTO {
 
     @JsonProperty("userId")
     private UUID userId;
+
+    @JsonProperty("nombreUsuario")
+    private String nombreUsuario;
 }

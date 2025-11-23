@@ -21,7 +21,7 @@ public class CreatePostDTO {
     @NotNull
     private String content;
 
-    private MultipartFile image; // Imagen
+    private String image; // Imagen
 
 
     @NotBlank
