@@ -16,72 +16,100 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api") // Prefijo general de APIs
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ComentarioController {
 
     private final iComentarioService comentarioService;
 
-    // ===========================
-    //   CREAR COMENTARIO
-    // ===========================
+    // =====================================================
+    // 🚀 1. CREAR COMENTARIO EN UN POST
+    // =====================================================
     @PostMapping("/posts/{postId}/comentarios")
-    public ResponseEntity<ComentarioResponseDTO> crearComentario(
+    public ResponseEntity<ComentarioResponseDTO> crearComentarioEnPost(
             @PathVariable UUID postId,
             @Valid @RequestBody ComentarioCreateDTO comentarioDTO
     ) {
         UUID userId = getAuthenticatedUserId();
-        ComentarioResponseDTO nuevoComentario =
+        ComentarioResponseDTO nuevo =
                 comentarioService.createComentario(postId, comentarioDTO, userId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoComentario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    // ===========================
-    //   LISTAR COMENTARIOS DE UN POST
-    // ===========================
+    // =====================================================
+    // 📌 2. LISTAR COMENTARIOS DE UN POST
+    // =====================================================
     @GetMapping("/posts/{postId}/comentarios")
-    public ResponseEntity<List<ComentarioResponseDTO>> listarComentarios(
+    public ResponseEntity<List<ComentarioResponseDTO>> listarComentariosPost(
             @PathVariable UUID postId
     ) {
-        List<ComentarioResponseDTO> comentarios = comentarioService.getComentariosByPost(postId);
-        return ResponseEntity.ok(comentarios);
+        return ResponseEntity.ok(
+                comentarioService.getComentariosByPost(postId)
+        );
     }
 
-    // ===========================
-    //   ACTUALIZAR COMENTARIO
-    // ===========================
+    // =====================================================
+    // 🚀 3. CREAR COMENTARIO EN UNA RECETA (NUEVO)
+    // =====================================================
+    @PostMapping("/recetas/{recetaId}/comentarios")
+    public ResponseEntity<ComentarioResponseDTO> crearComentarioEnReceta(
+            @PathVariable Long recetaId,
+            @Valid @RequestBody ComentarioCreateDTO comentarioDTO
+    ) {
+        UUID userId = getAuthenticatedUserId();
+
+        ComentarioResponseDTO nuevo =
+                comentarioService.createComentarioEnReceta(recetaId, comentarioDTO, userId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+    }
+
+    // =====================================================
+    // 📌 4. LISTAR COMENTARIOS DE UNA RECETA (NUEVO)
+    // =====================================================
+    @GetMapping("/recetas/{recetaId}/comentarios")
+    public ResponseEntity<List<ComentarioResponseDTO>> listarComentariosReceta(
+            @PathVariable Long recetaId
+    ) {
+        return ResponseEntity.ok(
+                comentarioService.getComentariosByReceta(recetaId)
+        );
+    }
+
+    // =====================================================
+    // ✏️ 5. EDITAR COMENTARIO
+    // =====================================================
     @PutMapping("/comentarios/{comentarioId}")
     public ResponseEntity<ComentarioResponseDTO> actualizarComentario(
             @PathVariable UUID comentarioId,
             @Valid @RequestBody ComentarioUpdateDTO comentarioDTO
     ) {
         UUID userId = getAuthenticatedUserId();
-        ComentarioResponseDTO actualizado =
-                comentarioService.updateComentario(comentarioId, comentarioDTO, userId);
 
-        return ResponseEntity.ok(actualizado);
+        return ResponseEntity.ok(
+                comentarioService.updateComentario(comentarioId, comentarioDTO, userId)
+        );
     }
 
-    // ===========================
-    //   ELIMINAR COMENTARIO
-    // ===========================
+    // =====================================================
+    // 🗑️ 6. ELIMINAR COMENTARIO
+    // =====================================================
     @DeleteMapping("/comentarios/{comentarioId}")
     public ResponseEntity<Void> eliminarComentario(
             @PathVariable UUID comentarioId
     ) {
         UUID userId = getAuthenticatedUserId();
         comentarioService.deleteComentario(comentarioId, userId);
+
         return ResponseEntity.noContent().build();
     }
 
-    // ===========================
-    //   OBTENER ID DEL USUARIO LOGUEADO
-    // ===========================
+    // =====================================================
+    // 🔐 OBTENER ID DEL USUARIO DESDE JWT
+    // =====================================================
     private UUID getAuthenticatedUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        // El JWT debe tener el UUID en el `sub`
-        return UUID.fromString(auth.getName());
+        return UUID.fromString(auth.getName()); // en el JWT el sub = UUID del usuario
     }
 }

@@ -37,13 +37,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/usuarios/create").permitAll()
                         .requestMatchers("/api/recetas/publicas").permitAll()
 
-                        // Rutas protegidas
+                        // Rutas posts y comentarios (protegidas)
                         .requestMatchers("/api/posts/**").authenticated()
-                        .requestMatchers("/api/comment/**").authenticated()
+                        .requestMatchers("/api/posts/*/comentarios").authenticated()
+                        .requestMatchers("/api/comentarios/**").authenticated()
+
+                        // Otras rutas protegidas
                         .requestMatchers("/api/platillos/**").authenticated()
                         .requestMatchers("/api/rachas/**").authenticated()
                         .requestMatchers("/api/hidratacion/me/**").authenticated()
 
+                        // Todo lo restante
                         .anyRequest().authenticated()
 
                 )

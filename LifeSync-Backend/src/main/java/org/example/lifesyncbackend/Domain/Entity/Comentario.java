@@ -1,4 +1,4 @@
-package org.example.lifesyncbackend.Domain.Entity; // Asegúrate que el package sea correcto
+package org.example.lifesyncbackend.Domain.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,32 +18,48 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@EntityListeners(AuditingEntityListener.class) // Para usar @CreatedDate
+@EntityListeners(AuditingEntityListener.class)
 public class Comentario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID idComentario; // Usamos UUID como en tu entidad Post
+    private UUID idComentario;
 
     @Column(nullable = false, length = 1000)
     private String contenido;
 
-    @CreatedDate // Usamos la anotación de Spring Auditing
+    @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // ===========================
+    //   COMENTARIO PARA POST
+    // ===========================
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "id_post", // Columna de clave foránea en la tabla 'comentarios'
-            nullable = false,
+            name = "id_post",
             foreignKey = @ForeignKey(name = "id_post_FK")
     )
-    @OnDelete(action = OnDeleteAction.CASCADE) // Si se borra el Post, se borra el comentario
-    private Post post;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Post post;  // <-- Puede ser null si pertenece a una receta
 
+    // ===========================
+    //   COMENTARIO PARA RECETA
+    // ===========================
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "id_usuario", // Columna de clave foránea en la tabla 'comentarios'
+            name = "id_receta",
+            foreignKey = @ForeignKey(name = "id_receta_FK")
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Receta receta; // <-- Puede ser null si pertenece a un post
+
+    // ===========================
+    //   USUARIO AUTOR DEL COMENTARIO
+    // ===========================
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "id_usuario",
             nullable = false,
             foreignKey = @ForeignKey(name = "id_usuario_FK")
     )

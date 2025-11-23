@@ -6,14 +6,13 @@ import org.example.lifesyncbackend.Domain.DTO.response.ComentarioResponseDTO;
 import org.example.lifesyncbackend.Domain.DTO.update.ComentarioUpdateDTO;
 import org.example.lifesyncbackend.Domain.Entity.Comentario;
 import org.example.lifesyncbackend.Domain.Entity.Post;
+import org.example.lifesyncbackend.Domain.Entity.Receta;
 import org.example.lifesyncbackend.Domain.Entity.Usuario;
 import org.example.lifesyncbackend.Repository.iComentarioRepository;
 import org.example.lifesyncbackend.Repository.iPostRepository;
+import org.example.lifesyncbackend.Repository.iRecetaRepository;
 import org.example.lifesyncbackend.Repository.iUsuarioRepository;
 import org.example.lifesyncbackend.Service.iComentarioService;
-// Importa tus excepciones personalizadas (si las tienes) o usa RuntimeException
-// import org.example.lifesyncbackend.Domain.Exceptions.ResourceNotFoundException;
-// import org.example.lifesyncbackend.Domain.Exceptions.UnauthorizedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,110 +21,134 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor // Inyecta las dependencias (final) por constructor
-@Transactional // Todos los métodos públicos serán transaccionales
+@RequiredArgsConstructor
+@Transactional
 public class ComentarioServiceImpl implements iComentarioService {
 
-    // --- DEPENDENCIAS (REPOSITORIOS) ---
     private final iComentarioRepository iComentarioRepository;
     private final iPostRepository iPostRepository;
     private final iUsuarioRepository iUsuarioRepository;
+    private final iRecetaRepository iRecetaRepository;
 
-    // NOTA: Idealmente, aquí inyectarías un Mapper (ej. MapStruct)
-    // private final ComentarioMapper comentarioMapper;
-
+    // ==========================================================
+    //                  COMENTARIOS EN POSTS
+    // ==========================================================
     @Override
     public ComentarioResponseDTO createComentario(UUID postId, ComentarioCreateDTO comentarioDTO, UUID idUsuario) {
 
-        // 1. Buscar las entidades relacionadas
-        // CAMBIO: Buscamos por ID, no por username
         Usuario usuario = iUsuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + idUsuario)); // Usa tu excepción
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + idUsuario));
 
         Post post = iPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post no encontrado: " + postId)); // Usa tu excepción
+                .orElseThrow(() -> new RuntimeException("Post no encontrado: " + postId));
 
-        // 2. Crear la nueva entidad Comentario
-        Comentario nuevoComentario = Comentario.builder()
+        Comentario comentario = Comentario.builder()
                 .contenido(comentarioDTO.getContenido())
                 .post(post)
                 .user(usuario)
                 .build();
 
-        // 3. Guardar en la BD
-        Comentario comentarioGuardado = iComentarioRepository.save(nuevoComentario);
-
-        // 4. Convertir a DTO de respuesta y devolver
-        return convertToDTO(comentarioGuardado);
+        return convertToDTO(iComentarioRepository.save(comentario));
     }
 
     @Override
-    @Transactional(readOnly = true) // Este método solo lee, no modifica
+    @Transactional(readOnly = true)
     public List<ComentarioResponseDTO> getComentariosByPost(UUID postId) {
 
         if (!iPostRepository.existsById(postId)) {
-            throw new RuntimeException("Post no encontrado: " + postId); // Usa tu excepción
+            throw new RuntimeException("Post no encontrado: " + postId);
         }
 
-        List<Comentario> comentarios = iComentarioRepository.findByPostIdPostOrderByCreatedAtAsc(postId);
-
-        return comentarios.stream()
+        return iComentarioRepository.findByPostIdPostOrderByCreatedAtAsc(postId)
+                .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    // ==========================================================
+    //                  COMENTARIOS EN RECETAS
+    // ==========================================================
+    @Override
+    public ComentarioResponseDTO createComentarioEnReceta(Long recetaId, ComentarioCreateDTO dto, UUID idUsuario) {
+
+        Usuario usuario = iUsuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + idUsuario));
+
+        Receta receta = iRecetaRepository.findById(recetaId)
+                .orElseThrow(() -> new RuntimeException("Receta no encontrada: " + recetaId));
+
+        Comentario comentario = Comentario.builder()
+                .contenido(dto.getContenido())
+                .receta(receta)
+                .user(usuario)
+                .build();
+
+        return convertToDTO(iComentarioRepository.save(comentario));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ComentarioResponseDTO> getComentariosByReceta(Long recetaId) {
+
+        if (!iRecetaRepository.existsById(recetaId)) {
+            throw new RuntimeException("Receta no encontrada: " + recetaId);
+        }
+
+        return iComentarioRepository.findByRecetaIdRecetaOrderByCreatedAtAsc(recetaId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ==========================================================
+    //                     UPDATE & DELETE
+    // ==========================================================
     @Override
     public ComentarioResponseDTO updateComentario(UUID comentarioId, ComentarioUpdateDTO comentarioDTO, UUID idUsuario) {
 
         Comentario comentario = iComentarioRepository.findById(comentarioId)
                 .orElseThrow(() -> new RuntimeException("Comentario no encontrado: " + comentarioId));
 
-        // 2. Verificar permisos
-        // CAMBIO: Comparamos por ID, no por username
         if (!comentario.getUser().getIdUsuario().equals(idUsuario)) {
-            throw new RuntimeException("No tienes permiso para editar este comentario"); // Usa tu excepción
+            throw new RuntimeException("No tienes permiso para editar este comentario");
         }
 
-        // 3. Actualizar
         comentario.setContenido(comentarioDTO.getContenido());
-        Comentario comentarioActualizado = iComentarioRepository.save(comentario);
 
-        return convertToDTO(comentarioActualizado);
+        return convertToDTO(iComentarioRepository.save(comentario));
     }
 
     @Override
     public void deleteComentario(UUID comentarioId, UUID idUsuario) {
+
         Comentario comentario = iComentarioRepository.findById(comentarioId)
                 .orElseThrow(() -> new RuntimeException("Comentario no encontrado: " + comentarioId));
 
-        // 2. Verificar permisos
-        // CAMBIO: Comparamos por ID, no por username
         if (!comentario.getUser().getIdUsuario().equals(idUsuario)) {
-            throw new RuntimeException("No tienes permiso para eliminar este comentario"); // Usa tu excepción
+            throw new RuntimeException("No tienes permiso para eliminar este comentario");
         }
 
-        // 3. Eliminar
         iComentarioRepository.delete(comentario);
     }
 
-
-    // --- MÉTODO HELPER (Esto debería estar en un Mapper dedicado) ---
+    // ==========================================================
+    //                        DTO MAPPER
+    // ==========================================================
     private ComentarioResponseDTO convertToDTO(Comentario comentario) {
 
-        // Aquí deberías mapear al DTO simple del autor
-        // UsuarioSimpleDTO autorDTO = new UsuarioSimpleDTO(
-        //     comentario.getUser().getIdUsuario(),
-        //     comentario.getUser().getUsername() // O el campo que uses para el nombre
-        // );
-
         ComentarioResponseDTO dto = new ComentarioResponseDTO();
+
         dto.setIdComentario(comentario.getIdComentario());
         dto.setContenido(comentario.getContenido());
         dto.setCreatedAt(comentario.getCreatedAt());
-        dto.setPostId(comentario.getPost().getIdPost());
-        // dto.setAutor(autorDTO); // <-- Descomentar cuando tengas el mapping del autor
-        dto.setIdUser(comentario.getUser().getIdUsuario()); // <-- FALTABA
 
+        // Identificador dinámico según el tipo de comentario
+        dto.setPostId(comentario.getPost() != null ? comentario.getPost().getIdPost() : null);
+        dto.setRecetaId(comentario.getReceta() != null ? comentario.getReceta().getIdReceta() : null);
+
+        // Usuario autor
+        dto.setIdUser(comentario.getUser().getIdUsuario());
+        dto.setNombreUsuario(comentario.getUser().getNombre());
 
         return dto;
     }
