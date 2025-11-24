@@ -100,6 +100,31 @@ Authorization: Bearer <token>
 
 ---
 
+# 🆕 Nuevas entidades agregadas  
+*(Posts y Comentarios)*
+
+### 📌 Entidad Post
+| Campo | Tipo | Descripción | Obligatorio |
+|-------|------|-------------|-------------|
+| idPost | Long | Identificador del post | No |
+| titulo | String | Título del post | Sí |
+| contenido | String | Contenido | Sí |
+| fechaCreacion | LocalDateTime | Fecha de creación | Sí |
+| usuario | Usuario | Autor del post | Sí |
+| comentarios | List<Comentario> | Comentarios asociados | No |
+
+### 📌 Entidad Comentario
+| Campo | Tipo | Descripción | Obligatorio |
+|-------|------|-------------|-------------|
+| idComentario | Long | Identificador | No |
+| contenido | String | Texto del comentario | Sí |
+| fechaComentario | LocalDateTime | Fecha del comentario | Sí |
+| usuario | Usuario | Autor | Sí |
+| post | Post | Post asociado | Sí |
+
+---
+
+
 ## 📁 DTOs
 
 ### 🎯 Core DTOs
@@ -131,6 +156,18 @@ Authorization: Bearer <token>
 - CreateRecetaDTO  
 - CreateUsuarioDTO  
 
+# 🆕 NUEVOS DTOs (Posts y Comentarios)
+
+### DTOs de Post
+- CreatePostDTO  
+- PostResponseDTO  
+- PostWithComentariosDTO  
+
+### DTOs de Comentario
+- CreateComentarioDTO  
+- ComentarioResponseDTO  
+
+
 ---
 
 ## 📑 Endpoints
@@ -152,6 +189,31 @@ Authorization: Bearer <token>
 | … | … | … | … |
 
 (Continúa con los demás controladores de forma similar…)
+
+---
+
+---
+
+# 🆕 Endpoints de Posts
+
+### ✨ PostController (/api/posts)
+| Método | Ruta | Método Java | Respuesta |
+|--------|------|-------------|-----------|
+| POST | /api/posts | createPost | PostResponseDTO |
+| GET | /api/posts | getAllPosts | List<PostResponseDTO> |
+| GET | /api/posts/{idPost} | getPostById | PostWithComentariosDTO |
+| DELETE | /api/posts/{idPost} | deletePost | GenericResponse |
+
+---
+
+# 🆕 Endpoints de Comentarios
+
+### ✨ ComentarioController (/api/comentarios)
+| Método | Ruta | Método Java | Respuesta |
+|--------|------|-------------|-----------|
+| POST | /api/comentarios | createComentario | ComentarioResponseDTO |
+| GET | /api/comentarios/post/{idPost} | getComentariosByPost | List<ComentarioResponseDTO> |
+| DELETE | /api/comentarios/{idComentario} | deleteComentario | GenericResponse |
 
 ---
 
@@ -365,6 +427,35 @@ Esta documentación detalla claramente las estructuras y relaciones de las tabla
 * *Usuario → Hidratación* (1–N)
 * *Usuario → Platillo* (1–N)
 * *Usuario → Receta* (1–N)
+
+---
+
+# 🆕 Tablas agregadas en BD
+
+### Tabla Post
+| Campo | Tipo |
+|-------|------|
+| id_post | BIGINT |
+| titulo | VARCHAR |
+| contenido | VARCHAR |
+| fecha_creacion | TIMESTAMP |
+| id_usuario_fk | UUID |
+
+Relación:
+- 1 Usuario → N Posts  
+
+### Tabla Comentario
+| Campo | Tipo |
+|-------|------|
+| id_comentario | BIGINT |
+| contenido | VARCHAR |
+| fecha_comentario | TIMESTAMP |
+| id_usuario_fk | UUID |
+| id_post_fk | BIGINT |
+
+Relación:
+- 1 Usuario → N Comentarios  
+- 1 Post → N Comentarios  
 
 ---
 
